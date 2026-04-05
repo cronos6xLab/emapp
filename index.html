@@ -1,426 +1,444 @@
-<think>
-El usuario quiere una aplicación de emergencia médica para personas que manejan vehículos (moto, bicicleta eléctrica, etc.). Necesito crear:
-
-1. **Registro de datos médicos importantes:**
-   - Tipo de sangre
-   - Alergias
-   - Contactos de emergencia (familiares, cercanos)
-   - Métodos de contacto: SMS, correo, WhatsApp
-
-2. **Funcionalidades principales:**
-   - Botón de emergencia prominente al inicio
-   - Generación de mensaje automático con datos del accidentado
-   - Ubicación exacta del incidente (calle, colonia, número)
-   - Registro del momento y lugar del escaneo
-   - Botón para llamar a emergencias (CDMX/México)
-   - Envío de WhatsApp a contactos registrados
-
-3. **Diseño:**
-   - Interfaz moderna 2026
-   - Colores relacionados a servicios de emergencia (rojo, blanco, tonos médicos)
-   - Responsive para cualquier dispositivo
-   - Instrucciones claras
-
-4. **Para GitHub:**
-   - Indicar dónde modificar los datos de cada persona
-   - Sistema para crear un repositorio por persona
-
-Voy a crear una interfaz con:
-- Estado inicial: Botón de emergencia grande y prominente
-- Al presionar: Muestra todos los datos médicos ordenados por importancia
-- Geolocalización con reverse geocoding
-- Sistema de logs de escaneo
-- Contactos con botones de acción directa
-- Números de emergencia de México
-
-Diseño: Voy a usar colores que transmitan urgencia pero sin ser agresivos:
-- Fondo oscuro con acentos en rojo/coral
-- Tipografía clara y legible
-- Animaciones sutiles pero impactantes
-- Sin emojis en títulos/botones
-
-Estructura del código:
-1. Sección de configuración de datos (comentada para que el usuario sepa dónde editar)
-2. Pantalla de emergencia inicial
-3. Panel de datos médicos
-4. Sistema de ubicación
-5. Contactos de emergencia
-6. Números de emergencia México
-7. Log de escaneo
-
-Voy a usar:
-- Tailwind para estilos
-- Geolocation API
-- Reverse geocoding con Nominatim (gratuito)
-- LocalStorage para logs
-- WhatsApp API (wa.me)
-</think>Te voy a crear una aplicación completa de emergencia médica con todas las funcionalidades que necesitas. El diseño será moderno, profesional y optimizado para situaciones de emergencia.
-
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emergencia Médica - Identificación de Accidentado</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        emergency: {
-                            dark: '#0a0f1a',
-                            darker: '#060a12',
-                            card: '#111827',
-                            border: '#1f2937',
-                            accent: '#dc2626',
-                            accentLight: '#ef4444',
-                            accentDark: '#991b1b',
-                            success: '#059669',
-                            warning: '#d97706',
-                            info: '#0284c7',
-                            muted: '#6b7280',
-                            text: '#f3f4f6'
-                        }
-                    },
-                    fontFamily: {
-                        display: ['Space Grotesk', 'sans-serif'],
-                        body: ['Inter', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
+    <title>Tarjeta de Emergencia Vial</title>
     <style>
+        /* --- DISEÑO MODERNO 2026 & COLORES --- */
         :root {
-            --bg: #0a0f1a;
-            --fg: #f3f4f6;
-            --accent: #dc2626;
-            --card: #111827;
-            --border: #1f2937;
-        }
-
-        * {
-            box-sizing: border-box;
+            --primary: #D32F2F; /* Rojo Emergencia */
+            --dark: #121212;
+            --card-bg: #1E1E1E;
+            --text-main: #FFFFFF;
+            --text-sec: #B0B0B0;
+            --accent: #2196F3; /* Azul Seguridad */
+            --success: #00C853;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--fg);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        .font-display {
-            font-family: 'Space Grotesk', sans-serif;
+        /* --- PANTALLA DE BLOQUEO (SEGURIDAD) --- */
+        #lock-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            background: radial-gradient(circle at center, #2c2c2c 0%, #121212 100%);
         }
 
-        /* Animated background */
-        .bg-emergency-pattern {
-            background: 
-                radial-gradient(ellipse at 20% 20%, rgba(220, 38, 38, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(220, 38, 38, 0.05) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(5, 150, 105, 0.03) 0%, transparent 70%),
-                linear-gradient(180deg, #0a0f1a 0%, #060a12 100%);
+        .emergency-btn {
+            background-color: var(--primary);
+            color: white;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            border: 8px solid #B71C1C;
+            font-size: 2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(211, 47, 47, 0.6);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
         }
 
-        /* Pulse animation for emergency button */
-        @keyframes emergencyPulse {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7),
-                            0 0 0 0 rgba(220, 38, 38, 0.5),
-                            0 0 40px rgba(220, 38, 38, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 0 20px rgba(220, 38, 38, 0),
-                            0 0 0 40px rgba(220, 38, 38, 0),
-                            0 0 60px rgba(220, 38, 38, 0.5);
-            }
+        .emergency-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 10px rgba(211, 47, 47, 0.8);
         }
 
-        .emergency-pulse {
-            animation: emergencyPulse 2s ease-in-out infinite;
+        .warning-text {
+            color: var(--text-sec);
+            font-size: 0.9rem;
+            max-width: 300px;
+            line-height: 1.5;
         }
 
-        /* Heartbeat line animation */
-        @keyframes heartbeatLine {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+        /* --- PANTALLA DE DATOS (EMERGENCIA) --- */
+        #data-screen {
+            display: none; /* Oculto por defecto */
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .heartbeat-line {
-            animation: heartbeatLine 3s linear infinite;
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
         }
 
-        /* Fade in animation */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .status-badge {
+            background: var(--success);
+            color: black;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.8rem;
         }
 
-        .animate-fade-in {
-            animation: fadeInUp 0.6s ease-out forwards;
+        /* Tarjetas de Información */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border-left: 5px solid var(--primary);
         }
 
-        .animate-delay-1 { animation-delay: 0.1s; opacity: 0; }
-        .animate-delay-2 { animation-delay: 0.2s; opacity: 0; }
-        .animate-delay-3 { animation-delay: 0.3s; opacity: 0; }
-        .animate-delay-4 { animation-delay: 0.4s; opacity: 0; }
-        .animate-delay-5 { animation-delay: 0.5s; opacity: 0; }
-
-        /* Card hover effects */
-        .card-hover {
-            transition: all 0.3s ease;
+        .card h3 {
+            margin-top: 0;
+            color: var(--text-sec);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .card-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 40px rgba(220, 38, 38, 0.1);
+        .data-highlight {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
         }
 
-        /* Button press effect */
-        .btn-press:active {
-            transform: scale(0.97);
+        .data-sub {
+            font-size: 1.1rem;
+            color: var(--text-main);
         }
 
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 3px;
-        }
-
-        /* Focus states */
-        button:focus-visible, a:focus-visible {
-            outline: 2px solid var(--accent);
-            outline-offset: 2px;
-        }
-
-        /* Reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        /* Data card styling */
-        .data-card {
-            background: linear-gradient(135deg, rgba(17, 24, 39, 0.9) 0%, rgba(17, 24, 39, 0.7) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(31, 41, 55, 0.8);
-        }
-
-        /* Blood type badge */
-        .blood-badge {
-            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
-        }
-
-        /* Contact button styles */
-        .contact-btn {
-            transition: all 0.2s ease;
-        }
-
-        .contact-btn:hover {
-            transform: scale(1.02);
-        }
-
-        /* Emergency numbers grid */
-        .emergency-grid {
+        /* Sección de Contactos */
+        .contact-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
         }
 
-        /* Scan log entry */
-        .log-entry {
-            border-left: 3px solid var(--accent);
-            background: rgba(220, 38, 38, 0.05);
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            color: white;
+            transition: opacity 0.2s;
         }
 
-        /* Hide scrollbar but keep functionality */
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        .btn-whatsapp { background-color: #25D366; }
+        .btn-call { background-color: var(--accent); }
+        .btn-sms { background-color: var(--text-sec); color: #000; }
+
+        /* Mapa y Logs */
+        .map-container {
+            background-color: #333;
+            height: 150px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            overflow: hidden;
         }
-        .hide-scrollbar::-webkit-scrollbar {
+        
+        .location-text {
+            font-size: 0.9rem;
+            color: var(--text-sec);
+            margin-bottom: 20px;
+        }
+
+        /* Números de Emergencia CDMX */
+        .emergency-numbers {
+            background: #2C2C2C;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+        .emergency-numbers h4 { margin: 0 0 10px 0; color: var(--primary); }
+        .number-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+
+        /* Animación */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(211, 47, 47, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
+        }
+
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
             display: none;
         }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
     </style>
 </head>
-<body class="bg-emergency-pattern">
+<body>
 
-    <!-- ============================================
-         CONFIGURACION DE DATOS PERSONALES
-         ============================================
-         
-         INSTRUCCIONES PARA PERSONALIZAR:
-         
-         1. Modifica los datos en la seccion "DATOS DE LA PERSONA"
-         2. Cada persona debe tener su propio archivo HTML
-         3. Crea un repositorio de GitHub para cada persona
-         4. Activa GitHub Pages en el repositorio
-         5. El QR apuntara a: https://[usuario].github.io/[nombre-repo]/
-         
-         ============================================ -->
+    <!-- PANTALLA 1: BOTÓN DE EMERGENCIA (Lo que ve primero el rescatista) -->
+    <div id="lock-screen">
+        <button class="emergency-btn" onclick="unlockData()">
+            ⚠️ EMERGENCIA<br>ACCIDENTE
+        </button>
+        <p class="warning-text">
+            <strong>INSTRUCCIONES:</strong><br>
+            1. Presione el botón rojo arriba.<br>
+            2. Revise la información médica.<br>
+            3. Utilice los botones para contactar a familiares o servicios de emergencia.<br>
+            <br>
+            <small>Al abrir, se registrará la ubicación y hora del incidente.</small>
+        </p>
+    </div>
+
+    <!-- PANTALLA 2: DATOS Y ACCIONES (Oculta inicialmente) -->
+    <div id="data-screen">
+        <div class="header-info">
+            <h2>INFORMACIÓN CRÍTICA</h2>
+            <span class="status-badge">AYUDANDO</span>
+        </div>
+
+        <!-- Carga GPS -->
+        <div class="loader" id="gps-loader"></div>
+        <p id="gps-status" style="text-align:center; color: #888; display:none;">Obteniendo ubicación...</p>
+
+        <!-- Datos Médicos (Lo más importante) -->
+        <div class="card">
+            <h3>Victima</h3>
+            <div class="data-highlight" id="display-name">Cargando...</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="card" style="border-left-color: var(--primary);">
+                <h3>Tipo de Sangre</h3>
+                <div class="data-highlight" id="display-blood">---</div>
+            </div>
+            <div class="card" style="border-left-color: #FFC107;">
+                <h3>Alergias / Cond.</h3>
+                <div class="data-sub" id="display-allergies">---</div>
+            </div>
+        </div>
+
+        <!-- Contactos -->
+        <div class="card" style="border-left-color: var(--accent);">
+            <h3>Contactos de Emergencia</h3>
+            <div class="contact-grid">
+                <!-- Contacto 1 -->
+                <a href="#" id="btn-wa-1" target="_blank" class="action-btn btn-whatsapp">
+                    📲 WhatsApp (1)
+                </a>
+                <a href="#" id="btn-call-1" class="action-btn btn-call">
+                    📞 Llamar (1)
+                </a>
+                <!-- Contacto 2 -->
+                <a href="#" id="btn-wa-2" target="_blank" class="action-btn btn-whatsapp">
+                    📲 WhatsApp (2)
+                </a>
+                <a href="#" id="btn-call-2" class="action-btn btn-call">
+                    📞 Llamar (2)
+                </a>
+            </div>
+        </div>
+
+        <!-- Ubicación -->
+        <div class="card">
+            <h3>Ubicación del Incidente</h3>
+            <div class="location-text" id="location-address">Sin ubicación aún...</div>
+            <div class="map-container">
+                <!-- Aquí se insertaría un mapa estático o iframe -->
+                <span style="color:#888">MAPA ESTÁTICO (Google Maps API)</span>
+            </div>
+            <small style="color: #666;">Coords: <span id="coords-display">---</span></small>
+        </div>
+
+        <!-- Emergencias CDMX -->
+        <div class="emergency-numbers">
+            <h4>📢 NÚMEROS DE EMERGENCIA (CDMX/MÉX)</h4>
+            <div class="number-row"><span>🚔 Seguridad (911)</span> <strong>911</strong></div>
+            <div class="number-row"><span>🚑 Ambulacias (C5)</span> <strong>5658-1111</strong></div>
+            <div class="number-row"><span>🔥 Bomberos</span> <strong>5762-2222</strong></div>
+            <div class="number-row"><span>🚲 Locatel</span> <strong>5658-1111</strong></div>
+        </div>
+        
+        <br><br><br>
+    </div>
 
     <script>
-        // ============================================
-        // DATOS DE LA PERSONA - MODIFICAR AQUI
-        // ============================================
-        
-        const PERSONAL_DATA = {
-            // INFORMACION BASICA
-            nombreCompleto: "Juan Carlos Mendoza Rivera",
-            fechaNacimiento: "15 de Marzo de 1985",
-            edad: "39 años",
-            curp: "MERC850315HDFRNA03",
-            
-            // DATOS MEDICOS CRITICOS
-            tipoSangre: "O+",
-            alergias: [
-                "Penicilina",
-                "Sulfonamidas",
-                "Látex"
-            ],
-            condicionesMedicas: [
-                "Hipertensión arterial controlada",
-                "Diabetes tipo 2"
-            ],
-            medicamentosActuales: [
-                "Metformina 850mg - Cada 12 horas",
-                "Losartán 50mg - Una vez al día"
-            ],
-            medicamentosProhibidos: [
-                "Penicilina y derivados",
-                "Antiinflamatorios con sulfa"
-            ],
-            
-            // INFORMACION DE SEGURO
-            seguroMedico: "IMSS",
-            numeroSeguro: "12345678901",
-            hospitalPreferido: "Hospital General de México",
-            
-            // CONTACTOS DE EMERGENCIA (hasta 5)
-            contactos: [
-                {
-                    nombre: "María Rivera Sánchez",
-                    parentesco: "Esposa",
-                    telefono: "+52 55 1234 5678",
-                    whatsapp: "5215512345678",
-                    email: "maria.rivera@email.com",
-                    esPrincipal: true
-                },
-                {
-                    nombre: "Carlos Mendoza López",
-                    parentesco: "Padre",
-                    telefono: "+52 55 9876 5432",
-                    whatsapp: "5215598765432",
-                    email: "carlos.mendoza@email.com",
-                    esPrincipal: false
-                },
-                {
-                    nombre: "Ana Mendoza Rivera",
-                    parentesco: "Hermana",
-                    telefono: "+52 55 5555 1234",
-                    whatsapp: "5215555551234",
-                    email: "ana.mendoza@email.com",
-                    esPrincipal: false
-                }
-            ],
-            
-            // MEDICO DE CABECERA
-            medicoCabecera: {
-                nombre: "Dr. Roberto García Martínez",
-                telefono: "+52 55 2222 3333",
-                institucion: "Clínica Médica del Valle"
+        /* 
+        ===========================================================
+           SECCIÓN 1: CONFIGURACIÓN DEL USUARIO (EDITAR AQUÍ)
+        ===========================================================
+        */
+        const userData = {
+            nombre: "Carlos Hernández",        // Nombre de la persona
+            sangre: "O+",                      // Tipo de sangre
+            alergias: "Penicilina, Picaduras de abeja", // Alergias o condiciones crónicas
+            contacto1: {
+                nombre: "Esposa (María",
+                telefono: "5512345678",        // Teléfono a 10 dígitos
+                parentesco: "Esposa"
             },
-            
-            // DIRECCION DE RESIDENCIA
-            direccionResidencia: {
-                calle: "Av. Insurgentes Sur",
-                numero: "1234",
-                colonia: "Col. Del Valle",
-                ciudad: "Ciudad de México",
-                codigoPostal: "03100",
-                referencias: "Edificio azul, Depto 302"
+            contacto2: {
+                nombre: "Hermano (José)",
+                telefono: "5598765432",
+                parentesco": "Hermano"
             }
         };
-        
-        // ============================================
-        // FIN DE CONFIGURACION DE DATOS
-        // ============================================
+
+        /* 
+        ===========================================================
+           LÓGICA DE LA APLICACIÓN (NO EDITAR A MENOSO SEPA JS)
+        ===========================================================
+        */
+
+        // 1. Desbloqueo y Carga de Datos
+        function unlockData() {
+            // Pantalla de carga
+            document.getElementById('lock-screen').style.display = 'none';
+            document.getElementById('data-screen').style.display = 'block';
+            document.getElementById('gps-loader').style.display = 'block';
+            document.getElementById('gps-status').style.display = 'block';
+
+            // Poblar datos estáticos
+            document.getElementById('display-name').innerText = userData.nombre;
+            document.getElementById('display-blood').innerText = userData.sangre;
+            document.getElementById('display-allergies').innerText = userData.alergias;
+
+            // Generar enlaces de acción
+            setupContactButton('btn-wa-1', 'btn-call-1', userData.contacto1);
+            setupContactButton('btn-wa-2', 'btn-call-2', userData.contacto2);
+
+            // Iniciar Geolocalización
+            getLocationAndLog();
+        }
+
+        function setupContactButton(waId, callId, contact) {
+            // Formatear número para WhatsApp (quitar espacios y signos)
+            const cleanNumber = contact.telefono.replace(/[^0-9]/g, '');
+            
+            // Texto automático para WhatsApp
+            const msg = `Hola, soy testigo. Hay una emergencia con ${userData.nombre} (${contact.parentesco}). Necesito que contactes a alguien inmediatamente. Estoy en la ubicación que comparto abajo.`;
+            const encodedMsg = encodeURIComponent(msg);
+
+            // Configurar enlaces
+            document.getElementById(waId).href = `https://wa.me/${cleanNumber}?text=${encodedMsg}`;
+            document.getElementById(callId).href = `tel:${cleanNumber}`;
+        }
+
+        // 2. Geolocalización y Registro (Simulado para Frontend)
+        function getLocationAndLog() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                document.getElementById('location-address').innerText = "La geolocalización no es soportada por este navegador.";
+            }
+        }
+
+        function showPosition(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const timestamp = new Date().toLocaleString();
+
+            // Mostrar coordenadas
+            document.getElementById('coords-display').innerText = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+            
+            // Aquí simulamos el "Guardado" y la obtención de dirección
+            // Nota: Para obtener la calle real (Reverse Geocoding) se necesita una API key de Google Maps o similar.
+            // Usaremos una API pública gratuita de OSM (OpenStreetMap) con límite de uso.
+            
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const address = data.display_name;
+                    document.getElementById('location-address').innerHTML = `<strong>Dirección aproximada:</strong><br>${address}`;
+                    
+                    // Generar link de Google Maps
+                    const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
+                    document.querySelector('.map-container').innerHTML = `<a href="${mapLink}" target="_blank" style="color:#2196F3; text-decoration:none;">📍 Abrir en Google Maps</a>`;
+                })
+                .catch(err => {
+                    document.getElementById('location-address').innerText = "No se pudo obtener la calle. Coordenadas activas.";
+                })
+                .finally(() => {
+                    document.getElementById('gps-loader').style.display = 'none';
+                    document.getElementById('gps-status').style.display = 'none';
+                    logIncident(lat, lon, timestamp);
+                });
+        }
+
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    document.getElementById('location-address').innerText = "El usuario denegó la solicitud de geolocalización.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    document.getElementById('location-address').innerText = "La información de ubicación no está disponible.";
+                    break;
+                case error.TIMEOUT:
+                    document.getElementById('location-address').innerText = "La solicitud de ubicación ha caducado.";
+                    break;
+                default:
+                    document.getElementById('location-address').innerText = "Error desconocido.";
+                    break;
+            }
+            document.getElementById('gps-loader').style.display = 'none';
+        }
+
+        // 3. Sistema de Registro (Logging)
+        // Como esto es un archivo estático (HTML), no puede guardar en una base de datos directamente.
+        // Esta función simula el registro y explica cómo hacerlo real.
+        function logIncident(lat, lon, time) {
+            const logData = {
+                sistema: "EmergenciaVial",
+                victima: userData.nombre,
+                fecha_hora: time,
+                ubicacion: {
+                    lat: lat,
+                    lng: lon,
+                    url_maps: `https://www.google.com/maps?q=${lat},${lon}`
+                },
+                tipo_evento: "ACCIDENTE_TRANSITO_VISTO"
+            };
+
+            console.log("--- REGISTRO DE INCIDENTE GENERADO ---");
+            console.log(JSON.stringify(logData, null, 2));
+            
+            alert("⚠️ INCIDENTE REGISTRADO.\n\nPara que este registro llegue a un servidor, el desarrollador debe conectar esta función a una base de datos (Firebase/SQL).\n\nPor ahora, los datos se han mostrado en la consola del navegador.");
+
+            // NOTA PARA EL DESARROLLADOR:
+            // Para guardar esto de verdad, aquí你应该 hacer un fetch() a tu backend.
+            // Ejemplo:
+            // fetch('https://mi-servidor.com/api/log', { method: 'POST', body: JSON.stringify(logData) });
+        }
     </script>
-
-    <!-- Pantalla Principal - Boton de Emergencia -->
-    <div id="mainScreen" class="min-h-screen flex flex-col items-center justify-center px-4 py-8">
-        
-        <!-- Header con animacion de pulso cardiaco -->
-        <div class="w-full max-w-md mb-8 overflow-hidden">
-            <svg class="heartbeat-line w-[200%] h-8 text-emergency-accent opacity-30" viewBox="0 0 800 32">
-                <path d="M0,16 L50,16 L60,16 L70,4 L80,28 L90,8 L100,24 L110,16 L200,16 L210,16 L220,4 L230,28 L240,8 L250,24 L260,16 L350,16 L360,16 L370,4 L380,28 L390,8 L400,24 L410,16 L500,16 L510,16 L520,4 L530,28 L540,8 L550,24 L560,16 L650,16 L660,16 L670,4 L680,28 L690,8 L700,24 L710,16 L800,16" 
-                      fill="none" stroke="currentColor" stroke-width="2"/>
-            </svg>
-        </div>
-
-        <!-- Logo y titulo -->
-        <div class="text-center mb-8 animate-fade-in">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emergency-card border-2 border-emergency-border mb-4">
-                <svg class="w-10 h-10 text-emergency-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                </svg>
-            </div>
-            <h1 class="font-display text-2xl md:text-3xl font-bold text-emergency-text mb-2">
-                Identificacion de Emergencia
-            </h1>
-            <p class="text-emergency-muted text-sm md:text-base">
-                Sistema de Respuesta Medica Rapida
-            </p>
-        </div>
-
-        <!-- Boton de Emergencia Principal -->
-        <button id="emergencyBtn" 
-                class="emergency-pulse btn-press relative w-56 h-56 md:w-64 md:h-64 rounded-full bg-gradient-to-br from-emergency-accent to-emergency-accentDark flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 focus:outline-none animate-fade-in animate-delay-1"
-                aria-label="Presionar en caso de emergencia para ver datos medicos">
-            
-            <!-- Círculos decorativos -->
-            <div class="absolute inset-0 rounded-full border-4 border-emergency-accentLight opacity-30"></div>
-            <div class="absolute inset-4 rounded-full border-2 border-white opacity-20"></div>
-            
-            <!-- Icono de emergencia -->
-            <svg class="w-16 h-16 md:w-20 md:h-20 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-            </svg>
-            
-            <span class="font-display text-xl md:text-2xl font-bold text-white tracking-wide">
-                EMERGENCIA
-            </span>
-            <span class="text-white/80 text-xs md:text-sm mt-1">
-                Presiona aqui
-            </span>
-        </button>
-
-        <!-- Instrucciones -->
-        <div class="mt-8 text-center max-w-md animate-fade-in animate-delay-2">
-            <div class="bg-emergency-card/50 backdrop-blur-sm rounded-xl p-4 border border-emergency-border">
-                <p class="text-emergency
+</body>
+</html>
