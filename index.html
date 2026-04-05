@@ -231,7 +231,7 @@
 
         <!-- Datos Médicos (Lo más importante) -->
         <div class="card">
-            <h3>Victima</h3>
+            <h3>Víctima</h3>
             <div class="data-highlight" id="display-name">Cargando...</div>
         </div>
 
@@ -282,7 +282,7 @@
         <div class="emergency-numbers">
             <h4>📢 NÚMEROS DE EMERGENCIA (CDMX/MÉX)</h4>
             <div class="number-row"><span>🚔 Seguridad (911)</span> <strong>911</strong></div>
-            <div class="number-row"><span>🚑 Ambulacias (C5)</span> <strong>5658-1111</strong></div>
+            <div class="number-row"><span>🚑 Ambulancias (C5)</span> <strong>5658-1111</strong></div>
             <div class="number-row"><span>🔥 Bomberos</span> <strong>5762-2222</strong></div>
             <div class="number-row"><span>🚲 Locatel</span> <strong>5658-1111</strong></div>
         </div>
@@ -297,30 +297,30 @@
         ===========================================================
         */
         const userData = {
-            nombre: "Carlos Hernández",        // Nombre de la persona
-            sangre: "O+",                      // Tipo de sangre
-            alergias: "Penicilina, Picaduras de abeja", // Alergias o condiciones crónicas
+            nombre: "Carlos Hernández",
+            sangre: "O+",
+            alergias: "Penicilina, Picaduras de abeja",
             contacto1: {
-                nombre: "Esposa (María",
-                telefono: "5512345678",        // Teléfono a 10 dígitos
+                nombre: "Esposa (María)",
+                telefono: "5512345678",
                 parentesco: "Esposa"
             },
             contacto2: {
                 nombre: "Hermano (José)",
                 telefono: "5598765432",
-                parentesco": "Hermano"
+                parentesco: "Hermano"
             }
         };
 
         /* 
         ===========================================================
-           LÓGICA DE LA APLICACIÓN (NO EDITAR A MENOSO SEPA JS)
+           LÓGICA DE LA APLICACIÓN (NO EDITAR A MENOS QUE SEPA JS)
         ===========================================================
         */
 
         // 1. Desbloqueo y Carga de Datos
-        function unlockData() {
-            // Pantalla de carga
+        window.unlockData = function() {
+            // Ocultar pantalla de bloqueo y mostrar la de datos
             document.getElementById('lock-screen').style.display = 'none';
             document.getElementById('data-screen').style.display = 'block';
             document.getElementById('gps-loader').style.display = 'block';
@@ -337,27 +337,31 @@
 
             // Iniciar Geolocalización
             getLocationAndLog();
-        }
+        };
 
         function setupContactButton(waId, callId, contact) {
-            // Formatear número para WhatsApp (quitar espacios y signos)
+            // Limpiar número (solo dígitos)
             const cleanNumber = contact.telefono.replace(/[^0-9]/g, '');
             
-            // Texto automático para WhatsApp
-            const msg = `Hola, soy testigo. Hay una emergencia con ${userData.nombre} (${contact.parentesco}). Necesito que contactes a alguien inmediatamente. Estoy en la ubicación que comparto abajo.`;
+            // Mensaje automático para WhatsApp
+            const msg = `Hola, soy un auxiliar. Hay una emergencia con ${userData.nombre} (${contact.parentesco}). Necesito que contactes a alguien inmediatamente. Estoy en la ubicación que comparto abajo.`;
             const encodedMsg = encodeURIComponent(msg);
 
             // Configurar enlaces
-            document.getElementById(waId).href = `https://wa.me/${cleanNumber}?text=${encodedMsg}`;
-            document.getElementById(callId).href = `tel:${cleanNumber}`;
+            const waBtn = document.getElementById(waId);
+            const callBtn = document.getElementById(callId);
+            if (waBtn) waBtn.href = `https://wa.me/${cleanNumber}?text=${encodedMsg}`;
+            if (callBtn) callBtn.href = `tel:${cleanNumber}`;
         }
 
-        // 2. Geolocalización y Registro (Simulado para Frontend)
+        // 2. Geolocalización y Registro
         function getLocationAndLog() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(showPosition, showError);
             } else {
                 document.getElementById('location-address').innerText = "La geolocalización no es soportada por este navegador.";
+                document.getElementById('gps-loader').style.display = 'none';
+                document.getElementById('gps-status').style.display = 'none';
             }
         }
 
@@ -366,26 +370,22 @@
             const lon = position.coords.longitude;
             const timestamp = new Date().toLocaleString();
 
-            // Mostrar coordenadas
             document.getElementById('coords-display').innerText = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
             
-            // Aquí simulamos el "Guardado" y la obtención de dirección
-            // Nota: Para obtener la calle real (Reverse Geocoding) se necesita una API key de Google Maps o similar.
-            // Usaremos una API pública gratuita de OSM (OpenStreetMap) con límite de uso.
-            
+            // Reverse geocoding con Nominatim (OpenStreetMap)
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
-
+            
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    const address = data.display_name;
+                    const address = data.display_name || "Dirección no encontrada";
                     document.getElementById('location-address').innerHTML = `<strong>Dirección aproximada:</strong><br>${address}`;
                     
-                    // Generar link de Google Maps
                     const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
                     document.querySelector('.map-container').innerHTML = `<a href="${mapLink}" target="_blank" style="color:#2196F3; text-decoration:none;">📍 Abrir en Google Maps</a>`;
                 })
                 .catch(err => {
+                    console.warn("Error al obtener dirección:", err);
                     document.getElementById('location-address').innerText = "No se pudo obtener la calle. Coordenadas activas.";
                 })
                 .finally(() => {
@@ -396,48 +396,47 @@
         }
 
         function showError(error) {
+            let errorMsg = "";
             switch(error.code) {
                 case error.PERMISSION_DENIED:
-                    document.getElementById('location-address').innerText = "El usuario denegó la solicitud de geolocalización.";
+                    errorMsg = "Permiso de ubicación denegado. No se pudo obtener la ubicación.";
                     break;
                 case error.POSITION_UNAVAILABLE:
-                    document.getElementById('location-address').innerText = "La información de ubicación no está disponible.";
+                    errorMsg = "Información de ubicación no disponible.";
                     break;
                 case error.TIMEOUT:
-                    document.getElementById('location-address').innerText = "La solicitud de ubicación ha caducado.";
+                    errorMsg = "La solicitud de ubicación ha caducado.";
                     break;
                 default:
-                    document.getElementById('location-address').innerText = "Error desconocido.";
+                    errorMsg = "Error desconocido al obtener ubicación.";
                     break;
             }
+            document.getElementById('location-address').innerText = errorMsg;
             document.getElementById('gps-loader').style.display = 'none';
+            document.getElementById('gps-status').style.display = 'none';
+            // Aún así registramos el incidente sin coordenadas
+            logIncident(null, null, new Date().toLocaleString());
         }
 
         // 3. Sistema de Registro (Logging)
-        // Como esto es un archivo estático (HTML), no puede guardar en una base de datos directamente.
-        // Esta función simula el registro y explica cómo hacerlo real.
         function logIncident(lat, lon, time) {
             const logData = {
                 sistema: "EmergenciaVial",
                 victima: userData.nombre,
                 fecha_hora: time,
-                ubicacion: {
+                ubicacion: lat && lon ? {
                     lat: lat,
                     lng: lon,
                     url_maps: `https://www.google.com/maps?q=${lat},${lon}`
-                },
+                } : "No disponible",
                 tipo_evento: "ACCIDENTE_TRANSITO_VISTO"
             };
 
             console.log("--- REGISTRO DE INCIDENTE GENERADO ---");
             console.log(JSON.stringify(logData, null, 2));
             
-            alert("⚠️ INCIDENTE REGISTRADO.\n\nPara que este registro llegue a un servidor, el desarrollador debe conectar esta función a una base de datos (Firebase/SQL).\n\nPor ahora, los datos se han mostrado en la consola del navegador.");
-
-            // NOTA PARA EL DESARROLLADOR:
-            // Para guardar esto de verdad, aquí你应该 hacer un fetch() a tu backend.
-            // Ejemplo:
-            // fetch('https://mi-servidor.com/api/log', { method: 'POST', body: JSON.stringify(logData) });
+            // Aviso amigable (sin alert intrusivo, solo si quieres notificar)
+            // alert("⚠️ Incidente registrado en consola. Para guardarlo en servidor, conectar con backend.");
         }
     </script>
 </body>
