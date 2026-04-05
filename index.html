@@ -1,0 +1,426 @@
+<think>
+El usuario quiere una aplicación de emergencia médica para personas que manejan vehículos (moto, bicicleta eléctrica, etc.). Necesito crear:
+
+1. **Registro de datos médicos importantes:**
+   - Tipo de sangre
+   - Alergias
+   - Contactos de emergencia (familiares, cercanos)
+   - Métodos de contacto: SMS, correo, WhatsApp
+
+2. **Funcionalidades principales:**
+   - Botón de emergencia prominente al inicio
+   - Generación de mensaje automático con datos del accidentado
+   - Ubicación exacta del incidente (calle, colonia, número)
+   - Registro del momento y lugar del escaneo
+   - Botón para llamar a emergencias (CDMX/México)
+   - Envío de WhatsApp a contactos registrados
+
+3. **Diseño:**
+   - Interfaz moderna 2026
+   - Colores relacionados a servicios de emergencia (rojo, blanco, tonos médicos)
+   - Responsive para cualquier dispositivo
+   - Instrucciones claras
+
+4. **Para GitHub:**
+   - Indicar dónde modificar los datos de cada persona
+   - Sistema para crear un repositorio por persona
+
+Voy a crear una interfaz con:
+- Estado inicial: Botón de emergencia grande y prominente
+- Al presionar: Muestra todos los datos médicos ordenados por importancia
+- Geolocalización con reverse geocoding
+- Sistema de logs de escaneo
+- Contactos con botones de acción directa
+- Números de emergencia de México
+
+Diseño: Voy a usar colores que transmitan urgencia pero sin ser agresivos:
+- Fondo oscuro con acentos en rojo/coral
+- Tipografía clara y legible
+- Animaciones sutiles pero impactantes
+- Sin emojis en títulos/botones
+
+Estructura del código:
+1. Sección de configuración de datos (comentada para que el usuario sepa dónde editar)
+2. Pantalla de emergencia inicial
+3. Panel de datos médicos
+4. Sistema de ubicación
+5. Contactos de emergencia
+6. Números de emergencia México
+7. Log de escaneo
+
+Voy a usar:
+- Tailwind para estilos
+- Geolocation API
+- Reverse geocoding con Nominatim (gratuito)
+- LocalStorage para logs
+- WhatsApp API (wa.me)
+</think>Te voy a crear una aplicación completa de emergencia médica con todas las funcionalidades que necesitas. El diseño será moderno, profesional y optimizado para situaciones de emergencia.
+
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergencia Médica - Identificación de Accidentado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emergency: {
+                            dark: '#0a0f1a',
+                            darker: '#060a12',
+                            card: '#111827',
+                            border: '#1f2937',
+                            accent: '#dc2626',
+                            accentLight: '#ef4444',
+                            accentDark: '#991b1b',
+                            success: '#059669',
+                            warning: '#d97706',
+                            info: '#0284c7',
+                            muted: '#6b7280',
+                            text: '#f3f4f6'
+                        }
+                    },
+                    fontFamily: {
+                        display: ['Space Grotesk', 'sans-serif'],
+                        body: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg: #0a0f1a;
+            --fg: #f3f4f6;
+            --accent: #dc2626;
+            --card: #111827;
+            --border: #1f2937;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Animated background */
+        .bg-emergency-pattern {
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(220, 38, 38, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(220, 38, 38, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(5, 150, 105, 0.03) 0%, transparent 70%),
+                linear-gradient(180deg, #0a0f1a 0%, #060a12 100%);
+        }
+
+        /* Pulse animation for emergency button */
+        @keyframes emergencyPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7),
+                            0 0 0 0 rgba(220, 38, 38, 0.5),
+                            0 0 40px rgba(220, 38, 38, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 0 20px rgba(220, 38, 38, 0),
+                            0 0 0 40px rgba(220, 38, 38, 0),
+                            0 0 60px rgba(220, 38, 38, 0.5);
+            }
+        }
+
+        .emergency-pulse {
+            animation: emergencyPulse 2s ease-in-out infinite;
+        }
+
+        /* Heartbeat line animation */
+        @keyframes heartbeatLine {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .heartbeat-line {
+            animation: heartbeatLine 3s linear infinite;
+        }
+
+        /* Fade in animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .animate-delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .animate-delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .animate-delay-3 { animation-delay: 0.3s; opacity: 0; }
+        .animate-delay-4 { animation-delay: 0.4s; opacity: 0; }
+        .animate-delay-5 { animation-delay: 0.5s; opacity: 0; }
+
+        /* Card hover effects */
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(220, 38, 38, 0.1);
+        }
+
+        /* Button press effect */
+        .btn-press:active {
+            transform: scale(0.97);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        /* Focus states */
+        button:focus-visible, a:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Data card styling */
+        .data-card {
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.9) 0%, rgba(17, 24, 39, 0.7) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(31, 41, 55, 0.8);
+        }
+
+        /* Blood type badge */
+        .blood-badge {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
+        }
+
+        /* Contact button styles */
+        .contact-btn {
+            transition: all 0.2s ease;
+        }
+
+        .contact-btn:hover {
+            transform: scale(1.02);
+        }
+
+        /* Emergency numbers grid */
+        .emergency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        /* Scan log entry */
+        .log-entry {
+            border-left: 3px solid var(--accent);
+            background: rgba(220, 38, 38, 0.05);
+        }
+
+        /* Hide scrollbar but keep functionality */
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-emergency-pattern">
+
+    <!-- ============================================
+         CONFIGURACION DE DATOS PERSONALES
+         ============================================
+         
+         INSTRUCCIONES PARA PERSONALIZAR:
+         
+         1. Modifica los datos en la seccion "DATOS DE LA PERSONA"
+         2. Cada persona debe tener su propio archivo HTML
+         3. Crea un repositorio de GitHub para cada persona
+         4. Activa GitHub Pages en el repositorio
+         5. El QR apuntara a: https://[usuario].github.io/[nombre-repo]/
+         
+         ============================================ -->
+
+    <script>
+        // ============================================
+        // DATOS DE LA PERSONA - MODIFICAR AQUI
+        // ============================================
+        
+        const PERSONAL_DATA = {
+            // INFORMACION BASICA
+            nombreCompleto: "Juan Carlos Mendoza Rivera",
+            fechaNacimiento: "15 de Marzo de 1985",
+            edad: "39 años",
+            curp: "MERC850315HDFRNA03",
+            
+            // DATOS MEDICOS CRITICOS
+            tipoSangre: "O+",
+            alergias: [
+                "Penicilina",
+                "Sulfonamidas",
+                "Látex"
+            ],
+            condicionesMedicas: [
+                "Hipertensión arterial controlada",
+                "Diabetes tipo 2"
+            ],
+            medicamentosActuales: [
+                "Metformina 850mg - Cada 12 horas",
+                "Losartán 50mg - Una vez al día"
+            ],
+            medicamentosProhibidos: [
+                "Penicilina y derivados",
+                "Antiinflamatorios con sulfa"
+            ],
+            
+            // INFORMACION DE SEGURO
+            seguroMedico: "IMSS",
+            numeroSeguro: "12345678901",
+            hospitalPreferido: "Hospital General de México",
+            
+            // CONTACTOS DE EMERGENCIA (hasta 5)
+            contactos: [
+                {
+                    nombre: "María Rivera Sánchez",
+                    parentesco: "Esposa",
+                    telefono: "+52 55 1234 5678",
+                    whatsapp: "5215512345678",
+                    email: "maria.rivera@email.com",
+                    esPrincipal: true
+                },
+                {
+                    nombre: "Carlos Mendoza López",
+                    parentesco: "Padre",
+                    telefono: "+52 55 9876 5432",
+                    whatsapp: "5215598765432",
+                    email: "carlos.mendoza@email.com",
+                    esPrincipal: false
+                },
+                {
+                    nombre: "Ana Mendoza Rivera",
+                    parentesco: "Hermana",
+                    telefono: "+52 55 5555 1234",
+                    whatsapp: "5215555551234",
+                    email: "ana.mendoza@email.com",
+                    esPrincipal: false
+                }
+            ],
+            
+            // MEDICO DE CABECERA
+            medicoCabecera: {
+                nombre: "Dr. Roberto García Martínez",
+                telefono: "+52 55 2222 3333",
+                institucion: "Clínica Médica del Valle"
+            },
+            
+            // DIRECCION DE RESIDENCIA
+            direccionResidencia: {
+                calle: "Av. Insurgentes Sur",
+                numero: "1234",
+                colonia: "Col. Del Valle",
+                ciudad: "Ciudad de México",
+                codigoPostal: "03100",
+                referencias: "Edificio azul, Depto 302"
+            }
+        };
+        
+        // ============================================
+        // FIN DE CONFIGURACION DE DATOS
+        // ============================================
+    </script>
+
+    <!-- Pantalla Principal - Boton de Emergencia -->
+    <div id="mainScreen" class="min-h-screen flex flex-col items-center justify-center px-4 py-8">
+        
+        <!-- Header con animacion de pulso cardiaco -->
+        <div class="w-full max-w-md mb-8 overflow-hidden">
+            <svg class="heartbeat-line w-[200%] h-8 text-emergency-accent opacity-30" viewBox="0 0 800 32">
+                <path d="M0,16 L50,16 L60,16 L70,4 L80,28 L90,8 L100,24 L110,16 L200,16 L210,16 L220,4 L230,28 L240,8 L250,24 L260,16 L350,16 L360,16 L370,4 L380,28 L390,8 L400,24 L410,16 L500,16 L510,16 L520,4 L530,28 L540,8 L550,24 L560,16 L650,16 L660,16 L670,4 L680,28 L690,8 L700,24 L710,16 L800,16" 
+                      fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
+        </div>
+
+        <!-- Logo y titulo -->
+        <div class="text-center mb-8 animate-fade-in">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emergency-card border-2 border-emergency-border mb-4">
+                <svg class="w-10 h-10 text-emergency-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+            </div>
+            <h1 class="font-display text-2xl md:text-3xl font-bold text-emergency-text mb-2">
+                Identificacion de Emergencia
+            </h1>
+            <p class="text-emergency-muted text-sm md:text-base">
+                Sistema de Respuesta Medica Rapida
+            </p>
+        </div>
+
+        <!-- Boton de Emergencia Principal -->
+        <button id="emergencyBtn" 
+                class="emergency-pulse btn-press relative w-56 h-56 md:w-64 md:h-64 rounded-full bg-gradient-to-br from-emergency-accent to-emergency-accentDark flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 focus:outline-none animate-fade-in animate-delay-1"
+                aria-label="Presionar en caso de emergencia para ver datos medicos">
+            
+            <!-- Círculos decorativos -->
+            <div class="absolute inset-0 rounded-full border-4 border-emergency-accentLight opacity-30"></div>
+            <div class="absolute inset-4 rounded-full border-2 border-white opacity-20"></div>
+            
+            <!-- Icono de emergencia -->
+            <svg class="w-16 h-16 md:w-20 md:h-20 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            
+            <span class="font-display text-xl md:text-2xl font-bold text-white tracking-wide">
+                EMERGENCIA
+            </span>
+            <span class="text-white/80 text-xs md:text-sm mt-1">
+                Presiona aqui
+            </span>
+        </button>
+
+        <!-- Instrucciones -->
+        <div class="mt-8 text-center max-w-md animate-fade-in animate-delay-2">
+            <div class="bg-emergency-card/50 backdrop-blur-sm rounded-xl p-4 border border-emergency-border">
+                <p class="text-emergency
