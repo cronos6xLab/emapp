@@ -2,442 +2,854 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tarjeta de Emergencia Vial</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Tarjeta de Emergencia Médica | Salud Vital</title>
+    <!-- Font Awesome 6 (iconos) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* --- DISEÑO MODERNO 2026 & COLORES --- */
-        :root {
-            --primary: #D32F2F; /* Rojo Emergencia */
-            --dark: #121212;
-            --card-bg: #1E1E1E;
-            --text-main: #FFFFFF;
-            --text-sec: #B0B0B0;
-            --accent: #2196F3; /* Azul Seguridad */
-            --success: #00C853;
-        }
+        /* ============================================
+           TARJETA DE EMERGENCIA MÉDICA - ESTILOS 2026
+           ============================================ */
 
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--dark);
-            color: var(--text-main);
+        /* Reset y configuración base */
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* --- PANTALLA DE BLOQUEO (SEGURIDAD) --- */
-        #lock-screen {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            text-align: center;
-            background: radial-gradient(circle at center, #2c2c2c 0%, #121212 100%);
-        }
-
-        .emergency-btn {
-            background-color: var(--primary);
-            color: white;
-            width: 280px;
-            height: 280px;
-            border-radius: 50%;
-            border: 8px solid #B71C1C;
-            font-size: 2rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            cursor: pointer;
-            box-shadow: 0 0 30px rgba(211, 47, 47, 0.6);
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-bottom: 30px;
-            animation: pulse 2s infinite;
-        }
-
-        .emergency-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 0 10px rgba(211, 47, 47, 0.8);
-        }
-
-        .warning-text {
-            color: var(--text-sec);
-            font-size: 0.9rem;
-            max-width: 300px;
-            line-height: 1.5;
-        }
-
-        /* --- PANTALLA DE DATOS (EMERGENCIA) --- */
-        #data-screen {
-            display: none; /* Oculto por defecto */
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-            width: 100%;
             box-sizing: border-box;
         }
 
-        .header-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
+        :root {
+            /* Paleta de colores de emergencia */
+            --emergency-red: #DC2626;
+            --emergency-red-dark: #991B1B;
+            --emergency-red-light: #FEE2E2;
+            --emergency-orange: #EA580C;
+            --emergency-yellow: #F59E0B;
+            
+            /* Colores de soporte */
+            --primary-text: #1F2937;
+            --secondary-text: #6B7280;
+            --background: #F9FAFB;
+            --card-background: #FFFFFF;
+            --border-color: #E5E7EB;
+            
+            /* Colores de acción */
+            --success-green: #059669;
+            --info-blue: #2563EB;
+            --warning-yellow: #D97706;
+            
+            /* Sombras modernas */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            
+            /* Tipografía */
+            --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            
+            /* Espaciado */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+            --spacing-xl: 3rem;
         }
 
-        .status-badge {
-            background: var(--success);
-            color: black;
-            padding: 5px 10px;
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 50%, #FCA5A5 100%);
+            color: var(--primary-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: var(--spacing-sm);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--spacing-md);
+        }
+
+        /* ========== HEADER ========== */
+        header {
+            background: linear-gradient(135deg, var(--emergency-red) 0%, var(--emergency-red-dark) 100%);
+            color: white;
+            padding: var(--spacing-lg);
             border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.8rem;
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Tarjetas de Información */
-        .card {
-            background-color: var(--card-bg);
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+        }
+
+        header i {
+            font-size: 2.5rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            position: relative;
+            z-index: 1;
+            margin-top: var(--spacing-xs);
+            opacity: 0.95;
+            font-size: 1rem;
+        }
+
+        /* ========== BOTÓN DE EMERGENCIA ========== */
+        .emergency-section {
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            justify-content: center;
+        }
+
+        .emergency-button {
+            background: linear-gradient(135deg, var(--emergency-red) 0%, var(--emergency-orange) 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: var(--shadow-xl), 0 0 20px rgba(220, 38, 38, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-xs);
+            min-width: 280px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .emergency-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .emergency-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .emergency-button:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl), 0 0 40px rgba(220, 38, 38, 0.6);
+        }
+
+        .emergency-button:active {
+            transform: translateY(-2px) scale(0.98);
+            animation: emergency-pulse 0.5s ease;
+        }
+
+        @keyframes emergency-pulse {
+            0%, 100% { box-shadow: var(--shadow-xl), 0 0 20px rgba(220, 38, 38, 0.4); }
+            50% { box-shadow: var(--shadow-xl), 0 0 60px rgba(220, 38, 38, 0.8); }
+        }
+
+        .emergency-button i {
+            font-size: 2.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .emergency-button span {
+            position: relative;
+            z-index: 1;
+            letter-spacing: 2px;
+        }
+
+        .emergency-button small {
+            position: relative;
+            z-index: 1;
+            font-size: 0.75rem;
+            font-weight: 500;
+            opacity: 0.9;
+            text-transform: none;
+        }
+
+        /* ========== TARJETAS ========== */
+        .info-card {
+            background: var(--card-background);
             border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            border-left: 5px solid var(--primary);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
         }
 
-        .card h3 {
-            margin-top: 0;
-            color: var(--text-sec);
-            font-size: 0.85rem;
+        .info-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .info-card h2 {
+            color: var(--emergency-red);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            border-bottom: 2px solid var(--emergency-red-light);
+            padding-bottom: var(--spacing-sm);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-md);
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-sm);
+            background: var(--background);
+            border-radius: 10px;
+            border-left: 4px solid var(--emergency-red);
+            transition: all 0.2s ease;
+        }
+
+        .info-item:hover {
+            background: var(--emergency-red-light);
+            border-left-color: var(--emergency-red-dark);
+        }
+
+        .info-item label {
+            font-weight: 600;
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .info-item label i {
+            color: var(--emergency-red);
+            width: 20px;
+        }
+
+        .info-item span {
+            font-size: 1.1rem;
+            color: var(--primary-text);
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        /* Botón 911 */
+        .call-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .call-911-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            background: linear-gradient(135deg, #991B1B 0%, #7F1D1D 100%);
+            color: white;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: 16px;
+            text-decoration: none;
+            font-size: 1.3rem;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+            border: 3px solid white;
         }
 
-        .data-highlight {
-            font-size: 1.8rem;
+        .call-911-button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: var(--shadow-xl), 0 0 30px rgba(153, 27, 27, 0.5);
+        }
+
+        @keyframes ring {
+            0%, 100% { transform: rotate(0deg); }
+            10%, 30% { transform: rotate(-10deg); }
+            20%, 40% { transform: rotate(10deg); }
+        }
+
+        .call-911-button i {
+            animation: ring 1s ease-in-out infinite;
+        }
+
+        /* Contactos */
+        .contacts-list {
+            display: grid;
+            gap: var(--spacing-md);
+        }
+
+        .contact-card {
+            background: var(--background);
+            border-radius: 12px;
+            padding: var(--spacing-md);
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .contact-card:hover {
+            border-color: var(--emergency-red);
+            box-shadow: var(--shadow-md);
+        }
+
+        .contact-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .contact-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--emergency-red) 0%, var(--emergency-orange) 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: var(--text-main);
+            flex-shrink: 0;
         }
 
-        .data-sub {
-            font-size: 1.1rem;
-            color: var(--text-main);
+        .contact-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-text);
         }
 
-        /* Sección de Contactos */
-        .contact-grid {
+        .contact-relation {
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+            font-style: italic;
+        }
+
+        .contact-details {
+            display: grid;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .contact-detail {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 0.95rem;
+        }
+
+        .contact-detail i {
+            color: var(--emergency-red);
+            width: 18px;
+        }
+
+        .contact-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: var(--spacing-xs);
+        }
+
+        .contact-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .contact-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .btn-call { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+        .btn-sms { background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); }
+        .btn-whatsapp { background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); }
+        .btn-email { background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%); }
+
+        /* Acciones globales */
+        .action-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
         }
 
         .action-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 15px;
+            padding: var(--spacing-md);
+            border: none;
             border-radius: 12px;
-            text-decoration: none;
-            font-weight: bold;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-xs);
             color: white;
-            transition: opacity 0.2s;
+            box-shadow: var(--shadow-md);
         }
 
-        .btn-whatsapp { background-color: #25D366; }
-        .btn-call { background-color: var(--accent); }
-        .btn-sms { background-color: var(--text-sec); color: #000; }
+        .action-btn:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+        .sms-btn { background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); }
+        .email-btn { background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%); }
 
-        /* Mapa y Logs */
-        .map-container {
-            background-color: #333;
-            height: 150px;
-            border-radius: 12px;
+        /* Ubicación */
+        .location-info {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .location-info p {
+            padding: var(--spacing-sm);
+            background: var(--background);
+            border-radius: 8px;
+            border-left: 4px solid var(--info-blue);
+        }
+
+        .map-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            align-self: flex-start;
+        }
+
+        .map-link:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+        /* Historial */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .history-item {
+            background: var(--background);
+            border-radius: 10px;
+            padding: var(--spacing-md);
+            border-left: 4px solid var(--warning-yellow);
+        }
+
+        .history-item strong { color: var(--emergency-red); }
+        .no-history { text-align: center; color: var(--secondary-text); font-style: italic; padding: var(--spacing-lg); }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+            color: white;
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: var(--spacing-sm);
             display: flex;
             align-items: center;
+            gap: var(--spacing-xs);
             justify-content: center;
-            margin-bottom: 10px;
-            overflow: hidden;
-        }
-        
-        .location-text {
-            font-size: 0.9rem;
-            color: var(--text-sec);
-            margin-bottom: 20px;
+            transition: all 0.3s ease;
         }
 
-        /* Números de Emergencia CDMX */
-        .emergency-numbers {
-            background: #2C2C2C;
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 30px;
-            font-size: 0.9rem;
-        }
-        .emergency-numbers h4 { margin: 0 0 10px 0; color: var(--primary); }
-        .number-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .clear-btn:hover { background: linear-gradient(135deg, var(--emergency-red) 0%, var(--emergency-red-dark) 100%); transform: translateY(-2px); }
 
-        /* Animación */
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(211, 47, 47, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
+        footer {
+            text-align: center;
+            padding: var(--spacing-lg);
+            background: var(--card-background);
+            border-radius: 16px;
+            margin-top: var(--spacing-lg);
         }
 
-        /* Loading Spinner */
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-            display: none;
+        /* Responsive */
+        @media (min-width: 768px) {
+            .info-grid { grid-template-columns: repeat(2, 1fr); }
+            .contact-actions { grid-template-columns: repeat(4, 1fr); }
+            .emergency-button { min-width: 350px; font-size: 1.8rem; }
         }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
+        @media (min-width: 1024px) {
+            .contacts-list { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .emergency-button { min-width: 100%; font-size: 1.3rem; }
+            .action-buttons { grid-template-columns: 1fr; }
+            .contact-actions { grid-template-columns: repeat(2, 1fr); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .info-card { animation: fadeIn 0.5s ease; }
+        @media print {
+            body { background: white; }
+            .emergency-button, .action-buttons, .clear-btn, .call-911-button { display: none; }
+            .info-card { break-inside: avoid; border: 1px solid #000; }
+        }
     </style>
 </head>
 <body>
+<div class="container">
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <i class="fas fa-hospital-symbol"></i>
+            <h1>Tarjeta de Emergencia Médica</h1>
+        </div>
+        <p class="subtitle">Información vital en caso de emergencia</p>
+    </header>
 
-    <!-- PANTALLA 1: BOTÓN DE EMERGENCIA (Lo que ve primero el rescatista) -->
-    <div id="lock-screen">
-        <button class="emergency-btn" onclick="unlockData()">
-            ⚠️ EMERGENCIA<br>ACCIDENTE
+    <!-- Botón de Emergencia -->
+    <section class="emergency-section">
+        <button id="emergencyBtn" class="emergency-button">
+            <i class="fas fa-ambulance"></i>
+            <span>¡EMERGENCIA!</span>
+            <small>Presiona para activar</small>
         </button>
-        <p class="warning-text">
-            <strong>INSTRUCCIONES:</strong><br>
-            1. Presione el botón rojo arriba.<br>
-            2. Revise la información médica.<br>
-            3. Utilice los botones para contactar a familiares o servicios de emergencia.<br>
-            <br>
-            <small>Al abrir, se registrará la ubicación y hora del incidente.</small>
-        </p>
-    </div>
+    </section>
 
-    <!-- PANTALLA 2: DATOS Y ACCIONES (Oculta inicialmente) -->
-    <div id="data-screen">
-        <div class="header-info">
-            <h2>INFORMACIÓN CRÍTICA</h2>
-            <span class="status-badge">AYUDANDO</span>
+    <!-- Info médica -->
+    <section class="info-card" id="medicalInfo">
+        <h2><i class="fas fa-heartbeat"></i> Información Médica</h2>
+        <div class="info-grid">
+            <div class="info-item"><label><i class="fas fa-tint"></i> Tipo de Sangre:</label><span id="bloodType">-</span></div>
+            <div class="info-item"><label><i class="fas fa-exclamation-triangle"></i> Alergias:</label><span id="allergies">-</span></div>
+            <div class="info-item"><label><i class="fas fa-pills"></i> Medicamentos:</label><span id="medications">-</span></div>
+            <div class="info-item"><label><i class="fas fa-file-medical"></i> Condiciones Médicas:</label><span id="conditions">-</span></div>
         </div>
+    </section>
 
-        <!-- Carga GPS -->
-        <div class="loader" id="gps-loader"></div>
-        <p id="gps-status" style="text-align:center; color: #888; display:none;">Obteniendo ubicación...</p>
-
-        <!-- Datos Médicos (Lo más importante) -->
-        <div class="card">
-            <h3>Víctima</h3>
-            <div class="data-highlight" id="display-name">Cargando...</div>
+    <!-- Datos personales -->
+    <section class="info-card">
+        <h2><i class="fas fa-user"></i> Datos Personales</h2>
+        <div class="info-grid">
+            <div class="info-item"><label><i class="fas fa-id-card"></i> Nombre Completo:</label><span id="fullName">-</span></div>
+            <div class="info-item"><label><i class="fas fa-calendar"></i> Fecha de Nacimiento:</label><span id="birthDate">-</span></div>
+            <div class="info-item"><label><i class="fas fa-phone"></i> Teléfono Personal:</label><span id="personalPhone">-</span></div>
         </div>
+    </section>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div class="card" style="border-left-color: var(--primary);">
-                <h3>Tipo de Sangre</h3>
-                <div class="data-highlight" id="display-blood">---</div>
-            </div>
-            <div class="card" style="border-left-color: #FFC107;">
-                <h3>Alergias / Cond.</h3>
-                <div class="data-sub" id="display-allergies">---</div>
-            </div>
+    <!-- Llamada 911 -->
+    <section class="call-section">
+        <a href="tel:911" class="call-911-button"><i class="fas fa-phone-volume"></i><span>LLAMAR AL 911</span></a>
+    </section>
+
+    <!-- Contactos emergencia -->
+    <section class="info-card">
+        <h2><i class="fas fa-users"></i> Contactos de Emergencia</h2>
+        <div id="emergencyContactsList" class="contacts-list"></div>
+    </section>
+
+    <!-- Botones globales -->
+    <section class="action-buttons">
+        <button id="sendAllSMS" class="action-btn sms-btn"><i class="fas fa-sms"></i><span>Enviar SMS a Todos</span></button>
+        <button id="sendAllEmail" class="action-btn email-btn"><i class="fas fa-envelope"></i><span>Enviar Email a Todos</span></button>
+    </section>
+
+    <!-- Ubicación -->
+    <section class="info-card" id="locationSection" style="display: none;">
+        <h2><i class="fas fa-map-marker-alt"></i> Ubicación de Emergencia</h2>
+        <div class="location-info">
+            <p><strong>Fecha y Hora:</strong> <span id="emergencyTime">-</span></p>
+            <p><strong>Coordenadas:</strong> <span id="coordinates">-</span></p>
+            <a id="mapLink" href="#" target="_blank" class="map-link"><i class="fas fa-map"></i> Ver en Google Maps</a>
         </div>
+    </section>
 
-        <!-- Contactos -->
-        <div class="card" style="border-left-color: var(--accent);">
-            <h3>Contactos de Emergencia</h3>
-            <div class="contact-grid">
-                <!-- Contacto 1 -->
-                <a href="#" id="btn-wa-1" target="_blank" class="action-btn btn-whatsapp">
-                    📲 WhatsApp (1)
-                </a>
-                <a href="#" id="btn-call-1" class="action-btn btn-call">
-                    📞 Llamar (1)
-                </a>
-                <!-- Contacto 2 -->
-                <a href="#" id="btn-wa-2" target="_blank" class="action-btn btn-whatsapp">
-                    📲 WhatsApp (2)
-                </a>
-                <a href="#" id="btn-call-2" class="action-btn btn-call">
-                    📞 Llamar (2)
-                </a>
-            </div>
-        </div>
+    <!-- Historial -->
+    <section class="info-card">
+        <h2><i class="fas fa-history"></i> Historial de Escaneos</h2>
+        <div id="scanHistory" class="history-list"><p class="no-history">No hay escaneos registrados</p></div>
+        <button id="clearHistory" class="clear-btn" style="display: none;"><i class="fas fa-trash"></i> Limpiar Historial</button>
+    </section>
 
-        <!-- Ubicación -->
-        <div class="card">
-            <h3>Ubicación del Incidente</h3>
-            <div class="location-text" id="location-address">Sin ubicación aún...</div>
-            <div class="map-container">
-                <!-- Aquí se insertaría un mapa estático o iframe -->
-                <span style="color:#888">MAPA ESTÁTICO (Google Maps API)</span>
-            </div>
-            <small style="color: #666;">Coords: <span id="coords-display">---</span></small>
-        </div>
+    <footer>
+        <p><i class="fas fa-info-circle"></i> Esta información es vital en caso de emergencia médica</p>
+        <p class="small-text">Última actualización: <span id="lastUpdate">-</span></p>
+    </footer>
+</div>
 
-        <!-- Emergencias CDMX -->
-        <div class="emergency-numbers">
-            <h4>📢 NÚMEROS DE EMERGENCIA (CDMX/MÉX)</h4>
-            <div class="number-row"><span>🚔 Seguridad (911)</span> <strong>911</strong></div>
-            <div class="number-row"><span>🚑 Ambulancias (C5)</span> <strong>5658-1111</strong></div>
-            <div class="number-row"><span>🔥 Bomberos</span> <strong>5762-2222</strong></div>
-            <div class="number-row"><span>🚲 Locatel</span> <strong>5658-1111</strong></div>
-        </div>
-        
-        <br><br><br>
-    </div>
-
-    <script>
-        /* 
-        ===========================================================
-           SECCIÓN 1: CONFIGURACIÓN DEL USUARIO (EDITAR AQUÍ)
-        ===========================================================
-        */
-        const userData = {
-            nombre: "Carlos Hernández",
-            sangre: "O+",
-            alergias: "Penicilina, Picaduras de abeja",
-            contacto1: {
-                nombre: "Esposa (María)",
-                telefono: "5512345678",
-                parentesco: "Esposa"
+<script>
+    // ===================================================================
+    //  ⚠️  CONFIGURACIÓN PERSONAL - EDITA TUS DATOS AQUÍ ABAJO ⚠️
+    // ===================================================================
+    const CONFIGURACION_PERSONAL = {
+        datosPersonales: {
+            nombreCompleto: "Juan Pérez García",
+            fechaNacimiento: "15 de Marzo de 1985",
+            telefonoPersonal: "+52 55 1234 5678"
+        },
+        informacionMedica: {
+            tipoSangre: "O+",
+            alergias: "Penicilina, Mariscos",
+            medicamentos: "Metformina 500mg (diabetes)",
+            condicionesMedicas: "Diabetes Tipo 2, Hipertensión"
+        },
+        contactosEmergencia: [
+            {
+                nombre: "María Pérez",
+                relacion: "Esposa",
+                telefono: "+52 55 9876 5432",
+                whatsapp: "5215598765432",
+                email: "maria.perez@ejemplo.com"
             },
-            contacto2: {
-                nombre: "Hermano (José)",
-                telefono: "5598765432",
-                parentesco: "Hermano"
+            {
+                nombre: "Carlos Pérez",
+                relacion: "Hijo",
+                telefono: "+52 55 1111 2222",
+                whatsapp: "5215511112222",
+                email: "carlos.perez@ejemplo.com"
+            },
+            {
+                nombre: "Ana García",
+                relacion: "Madre",
+                telefono: "+52 55 3333 4444",
+                whatsapp: "5215533334444",
+                email: "ana.garcia@ejemplo.com"
             }
-        };
+        ],
+        mensajeEmergencia: "🚨 EMERGENCIA MÉDICA: Necesito ayuda urgente. Por favor contactarme de inmediato."
+    };
 
-        /* 
-        ===========================================================
-           LÓGICA DE LA APLICACIÓN (NO EDITAR A MENOS QUE SEPA JS)
-        ===========================================================
-        */
+    // ==================== CÓDIGO DE LA APLICACIÓN ====================
+    let ubicacionActual = null;
 
-        // 1. Desbloqueo y Carga de Datos
-        window.unlockData = function() {
-            // Ocultar pantalla de bloqueo y mostrar la de datos
-            document.getElementById('lock-screen').style.display = 'none';
-            document.getElementById('data-screen').style.display = 'block';
-            document.getElementById('gps-loader').style.display = 'block';
-            document.getElementById('gps-status').style.display = 'block';
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarInformacionPersonal();
+        cargarContactosEmergencia();
+        cargarHistorial();
+        configurarEventos();
+        actualizarFechaActualizacion();
+    });
 
-            // Poblar datos estáticos
-            document.getElementById('display-name').innerText = userData.nombre;
-            document.getElementById('display-blood').innerText = userData.sangre;
-            document.getElementById('display-allergies').innerText = userData.alergias;
+    function cargarInformacionPersonal() {
+        document.getElementById('fullName').textContent = CONFIGURACION_PERSONAL.datosPersonales.nombreCompleto;
+        document.getElementById('birthDate').textContent = CONFIGURACION_PERSONAL.datosPersonales.fechaNacimiento;
+        document.getElementById('personalPhone').textContent = CONFIGURACION_PERSONAL.datosPersonales.telefonoPersonal;
+        document.getElementById('bloodType').textContent = CONFIGURACION_PERSONAL.informacionMedica.tipoSangre;
+        document.getElementById('allergies').textContent = CONFIGURACION_PERSONAL.informacionMedica.alergias;
+        document.getElementById('medications').textContent = CONFIGURACION_PERSONAL.informacionMedica.medicamentos;
+        document.getElementById('conditions').textContent = CONFIGURACION_PERSONAL.informacionMedica.condicionesMedicas;
+    }
 
-            // Generar enlaces de acción
-            setupContactButton('btn-wa-1', 'btn-call-1', userData.contacto1);
-            setupContactButton('btn-wa-2', 'btn-call-2', userData.contacto2);
+    function cargarContactosEmergencia() {
+        const contactsList = document.getElementById('emergencyContactsList');
+        contactsList.innerHTML = '';
+        CONFIGURACION_PERSONAL.contactosEmergencia.forEach((contacto, index) => {
+            const card = document.createElement('div');
+            card.className = 'contact-card';
+            const iniciales = contacto.nombre.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+            card.innerHTML = `
+                <div class="contact-header">
+                    <div class="contact-avatar">${iniciales}</div>
+                    <div class="contact-info">
+                        <div class="contact-name">${contacto.nombre}</div>
+                        <div class="contact-relation">${contacto.relacion}</div>
+                    </div>
+                </div>
+                <div class="contact-details">
+                    <div class="contact-detail"><i class="fas fa-phone"></i><span>${contacto.telefono}</span></div>
+                    <div class="contact-detail"><i class="fas fa-envelope"></i><span>${contacto.email}</span></div>
+                </div>
+                <div class="contact-actions">
+                    <a href="tel:${contacto.telefono}" class="contact-btn btn-call"><i class="fas fa-phone"></i> Llamar</a>
+                    <a href="sms:${contacto.telefono}?body=${encodeURIComponent(CONFIGURACION_PERSONAL.mensajeEmergencia)}" class="contact-btn btn-sms"><i class="fas fa-sms"></i> SMS</a>
+                    <a href="https://wa.me/${contacto.whatsapp}?text=${encodeURIComponent(CONFIGURACION_PERSONAL.mensajeEmergencia)}" target="_blank" class="contact-btn btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <a href="mailto:${contacto.email}?subject=${encodeURIComponent('EMERGENCIA MÉDICA')}&body=${encodeURIComponent(CONFIGURACION_PERSONAL.mensajeEmergencia)}" class="contact-btn btn-email"><i class="fas fa-envelope"></i> Email</a>
+                </div>
+            `;
+            contactsList.appendChild(card);
+        });
+    }
 
-            // Iniciar Geolocalización
-            getLocationAndLog();
-        };
+    function configurarEventos() {
+        document.getElementById('emergencyBtn').addEventListener('click', activarEmergencia);
+        document.getElementById('sendAllSMS').addEventListener('click', enviarSMSATodos);
+        document.getElementById('sendAllEmail').addEventListener('click', enviarEmailATodos);
+        document.getElementById('clearHistory').addEventListener('click', limpiarHistorial);
+    }
 
-        function setupContactButton(waId, callId, contact) {
-            // Limpiar número (solo dígitos)
-            const cleanNumber = contact.telefono.replace(/[^0-9]/g, '');
-            
-            // Mensaje automático para WhatsApp
-            const msg = `Hola, soy un auxiliar. Hay una emergencia con ${userData.nombre} (${contact.parentesco}). Necesito que contactes a alguien inmediatamente. Estoy en la ubicación que comparto abajo.`;
-            const encodedMsg = encodeURIComponent(msg);
+    function activarEmergencia() {
+        const btn = document.getElementById('emergencyBtn');
+        btn.style.animation = 'emergency-pulse 0.5s ease';
+        obtenerUbicacion();
+        guardarEnHistorial();
+        document.getElementById('locationSection').style.display = 'block';
+        setTimeout(() => document.getElementById('locationSection').scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    }
 
-            // Configurar enlaces
-            const waBtn = document.getElementById(waId);
-            const callBtn = document.getElementById(callId);
-            if (waBtn) waBtn.href = `https://wa.me/${cleanNumber}?text=${encodedMsg}`;
-            if (callBtn) callBtn.href = `tel:${cleanNumber}`;
+    function obtenerUbicacion() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    ubicacionActual = {
+                        latitud: position.coords.latitude,
+                        longitud: position.coords.longitude,
+                        timestamp: new Date().toLocaleString('es-MX', { dateStyle: 'full', timeStyle: 'medium' })
+                    };
+                    mostrarUbicacion(ubicacionActual);
+                },
+                function(error) {
+                    console.error('Error GPS:', error);
+                    ubicacionActual = { latitud: null, longitud: null, timestamp: new Date().toLocaleString('es-MX', { dateStyle: 'full', timeStyle: 'medium' }), error: 'No se pudo obtener la ubicación' };
+                    mostrarUbicacion(ubicacionActual);
+                }
+            );
+        } else {
+            alert('Geolocalización no soportada');
+            ubicacionActual = { latitud: null, longitud: null, timestamp: new Date().toLocaleString('es-MX', { dateStyle: 'full', timeStyle: 'medium' }), error: 'Geolocalización no soportada' };
+            mostrarUbicacion(ubicacionActual);
         }
+    }
 
-        // 2. Geolocalización y Registro
-        function getLocationAndLog() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else {
-                document.getElementById('location-address').innerText = "La geolocalización no es soportada por este navegador.";
-                document.getElementById('gps-loader').style.display = 'none';
-                document.getElementById('gps-status').style.display = 'none';
-            }
+    function mostrarUbicacion(ubicacion) {
+        document.getElementById('emergencyTime').textContent = ubicacion.timestamp;
+        if (ubicacion.latitud && ubicacion.longitud) {
+            const coords = `${ubicacion.latitud.toFixed(6)}, ${ubicacion.longitud.toFixed(6)}`;
+            document.getElementById('coordinates').textContent = coords;
+            const mapUrl = `https://www.google.com/maps?q=${ubicacion.latitud},${ubicacion.longitud}`;
+            const mapLink = document.getElementById('mapLink');
+            mapLink.href = mapUrl;
+            mapLink.style.display = 'inline-flex';
+        } else {
+            document.getElementById('coordinates').textContent = ubicacion.error || 'No disponible';
+            document.getElementById('mapLink').style.display = 'none';
         }
+    }
 
-        function showPosition(position) {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            const timestamp = new Date().toLocaleString();
+    function guardarEnHistorial() {
+        const historial = obtenerHistorial();
+        const nuevoRegistro = { id: Date.now(), timestamp: new Date().toLocaleString('es-MX', { dateStyle: 'full', timeStyle: 'medium' }), ubicacion: ubicacionActual };
+        historial.unshift(nuevoRegistro);
+        if (historial.length > 10) historial.pop();
+        localStorage.setItem('emergencyHistory', JSON.stringify(historial));
+        cargarHistorial();
+    }
 
-            document.getElementById('coords-display').innerText = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
-            
-            // Reverse geocoding con Nominatim (OpenStreetMap)
-            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    const address = data.display_name || "Dirección no encontrada";
-                    document.getElementById('location-address').innerHTML = `<strong>Dirección aproximada:</strong><br>${address}`;
-                    
-                    const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
-                    document.querySelector('.map-container').innerHTML = `<a href="${mapLink}" target="_blank" style="color:#2196F3; text-decoration:none;">📍 Abrir en Google Maps</a>`;
-                })
-                .catch(err => {
-                    console.warn("Error al obtener dirección:", err);
-                    document.getElementById('location-address').innerText = "No se pudo obtener la calle. Coordenadas activas.";
-                })
-                .finally(() => {
-                    document.getElementById('gps-loader').style.display = 'none';
-                    document.getElementById('gps-status').style.display = 'none';
-                    logIncident(lat, lon, timestamp);
-                });
+    function obtenerHistorial() {
+        const historialJSON = localStorage.getItem('emergencyHistory');
+        return historialJSON ? JSON.parse(historialJSON) : [];
+    }
+
+    function cargarHistorial() {
+        const historial = obtenerHistorial();
+        const historyContainer = document.getElementById('scanHistory');
+        if (historial.length === 0) {
+            historyContainer.innerHTML = '<p class="no-history">No hay escaneos registrados</p>';
+            document.getElementById('clearHistory').style.display = 'none';
+            return;
         }
+        historyContainer.innerHTML = '';
+        historial.forEach(registro => {
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            let coordenadas = 'No disponible';
+            let mapLink = '';
+            if (registro.ubicacion && registro.ubicacion.latitud && registro.ubicacion.longitud) {
+                coordenadas = `${registro.ubicacion.latitud.toFixed(6)}, ${registro.ubicacion.longitud.toFixed(6)}`;
+                mapLink = `<a href="https://www.google.com/maps?q=${registro.ubicacion.latitud},${registro.ubicacion.longitud}" target="_blank" class="map-link" style="font-size:0.9rem; margin-top:5px; display:inline-flex;"><i class="fas fa-map"></i> Ver en mapa</a>`;
+            } else if (registro.ubicacion && registro.ubicacion.error) coordenadas = registro.ubicacion.error;
+            item.innerHTML = `<p><strong><i class="fas fa-calendar-alt"></i> Fecha:</strong> ${registro.timestamp}</p><p><strong><i class="fas fa-map-marker-alt"></i> Ubicación:</strong> ${coordenadas}</p>${mapLink}`;
+            historyContainer.appendChild(item);
+        });
+        document.getElementById('clearHistory').style.display = 'block';
+    }
 
-        function showError(error) {
-            let errorMsg = "";
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    errorMsg = "Permiso de ubicación denegado. No se pudo obtener la ubicación.";
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    errorMsg = "Información de ubicación no disponible.";
-                    break;
-                case error.TIMEOUT:
-                    errorMsg = "La solicitud de ubicación ha caducado.";
-                    break;
-                default:
-                    errorMsg = "Error desconocido al obtener ubicación.";
-                    break;
-            }
-            document.getElementById('location-address').innerText = errorMsg;
-            document.getElementById('gps-loader').style.display = 'none';
-            document.getElementById('gps-status').style.display = 'none';
-            // Aún así registramos el incidente sin coordenadas
-            logIncident(null, null, new Date().toLocaleString());
+    function limpiarHistorial() {
+        if (confirm('¿Estás seguro de que quieres borrar todo el historial?')) {
+            localStorage.removeItem('emergencyHistory');
+            cargarHistorial();
         }
+    }
 
-        // 3. Sistema de Registro (Logging)
-        function logIncident(lat, lon, time) {
-            const logData = {
-                sistema: "EmergenciaVial",
-                victima: userData.nombre,
-                fecha_hora: time,
-                ubicacion: lat && lon ? {
-                    lat: lat,
-                    lng: lon,
-                    url_maps: `https://www.google.com/maps?q=${lat},${lon}`
-                } : "No disponible",
-                tipo_evento: "ACCIDENTE_TRANSITO_VISTO"
-            };
+    function enviarSMSATodos() {
+        const separator = /iPhone|iPad|iPod/i.test(navigator.userAgent) ? ';' : ',';
+        const numerosFormateados = CONFIGURACION_PERSONAL.contactosEmergencia.map(c => c.telefono).join(separator);
+        window.location.href = `sms:${numerosFormateados}?body=${encodeURIComponent(CONFIGURACION_PERSONAL.mensajeEmergencia)}`;
+    }
 
-            console.log("--- REGISTRO DE INCIDENTE GENERADO ---");
-            console.log(JSON.stringify(logData, null, 2));
-            
-            // Aviso amigable (sin alert intrusivo, solo si quieres notificar)
-            // alert("⚠️ Incidente registrado en consola. Para guardarlo en servidor, conectar con backend.");
-        }
-    </script>
+    function enviarEmailATodos() {
+        const emails = CONFIGURACION_PERSONAL.contactosEmergencia.map(c => c.email).join(',');
+        const asunto = encodeURIComponent('EMERGENCIA MÉDICA');
+        const cuerpo = encodeURIComponent(CONFIGURACION_PERSONAL.mensajeEmergencia + '\n\nDatos de la persona:\nNombre: ' + CONFIGURACION_PERSONAL.datosPersonales.nombreCompleto + '\nTipo de Sangre: ' + CONFIGURACION_PERSONAL.informacionMedica.tipoSangre + '\nAlergias: ' + CONFIGURACION_PERSONAL.informacionMedica.alergias + '\nMedicamentos: ' + CONFIGURACION_PERSONAL.informacionMedica.medicamentos + '\nCondiciones: ' + CONFIGURACION_PERSONAL.informacionMedica.condicionesMedicas);
+        window.location.href = `mailto:${emails}?subject=${asunto}&body=${cuerpo}`;
+    }
+
+    function actualizarFechaActualizacion() {
+        const fecha = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('lastUpdate').textContent = fecha;
+    }
+
+    // Utilidades
+    function esDispositivoMovil() { return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent); }
+    function vibrar(patron) { if ('vibrate' in navigator) navigator.vibrate(patron); }
+    function copiarAlPortapapeles(texto) { if (navigator.clipboard) navigator.clipboard.writeText(texto).then(() => alert('Copiado al portapapeles')); }
+
+    console.log('✅ Aplicación de Emergencia Médica cargada correctamente');
+</script>
 </body>
 </html>
